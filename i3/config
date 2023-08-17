@@ -53,7 +53,6 @@ bindsym $mod+Return exec alacritty
 
 # kill focused window
 bindsym $mod+Shift+q kill
-bindsym $mod+q kill
 
 # start dmenu (a program launcher)
 bindsym $mod+d exec --no-startup-id dmenu_run
@@ -189,3 +188,15 @@ bindsym $mod+r mode "resize"
 bar {
         status_command i3status
 }
+
+# My additions
+# Autoruns
+exec_always feh --randomize --bg-fill ~/wallpapers/*
+exec picom
+
+# Binds
+bindsym $mod+q kill
+
+# Gaps
+gaps inner 10
+gaps outer 10
