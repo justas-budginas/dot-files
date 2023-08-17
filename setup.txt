@@ -1,4 +1,5 @@
 i3 - window manager
+i3-layouts - for dynamic layouts
 ttf-hack-nerd - font for window manager
 neovim - for terminal text editor with config
     * also install vim-plug and use :PlugInstall / :PlugUpgrade
