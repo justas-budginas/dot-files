@@ -1,0 +1,6 @@
+i3 - window manager
+ttf-hack-nerd - font for window manager
+neovim - for terminal text editor with config
+    * also install vim-plug and use :PlugInstall / :PlugUpgrade
+
+exa - ls replacement
