@@ -5,7 +5,7 @@
 # Starts ssh-agent and adds github identity
 if [ -z "$SSH_AUTH_SOCK" ] ; then
  eval `ssh-agent -s` > /dev/null
- ssh-add -q ~/.ssh/github
+ #ssh-add -q ~/.ssh/github
 fi
 
 # If not running interactively, don't do anything

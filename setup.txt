@@ -1,9 +1,11 @@
-i3 - window manager
-i3-layouts - for dynamic layouts
+awesomewm - window manager
 ttf-hack-nerd - font for window manager
-neovim - for terminal text editor with config
-    * also install vim-plug and use :PlugInstall / :PlugUpgrade
+neovim - for terminal text editor
 picom - compositor
 feh - wallpaper manager
 
 exa - ls replacement
+
+Laptop specific:
+thermald - thermal daemon for monitoring and controlling temps
+tlp - battery management (https://linrunner.de/tlp/installation/arch.html)
