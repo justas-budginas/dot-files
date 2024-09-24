@@ -4,7 +4,9 @@ neovim - for terminal text editor
 picom - compositor
 feh - wallpaper manager
 
-exa - ls replacement
+eza - ls replacement (alias ls='eza -alh --color=always --icons')
+bat - modern cat replacement
+font-hack-nerd-font - install this so icons would work in eza 
 
 Laptop specific:
 thermald - thermal daemon for monitoring and controlling temps
