@@ -5,6 +5,7 @@ picom - compositor
 feh - wallpaper manager
 ranger - terminal file browser
 ncdu - terminal disk usage viewer
+btop - system resource monitor
 
 eza - ls replacement (alias ls='eza -alh --color=always --icons')
 bat - modern cat replacement
