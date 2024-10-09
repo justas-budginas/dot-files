@@ -3,7 +3,7 @@ ttf-hack-nerd - font for window manager
 neovim - for terminal text editor
 picom - compositor
 feh - wallpaper manager
-ranger - terminal file browser
+yazi - terminal file browser
 ncdu - terminal disk usage viewer
 btop - system resource monitor
 
