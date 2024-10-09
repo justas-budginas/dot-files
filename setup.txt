@@ -4,6 +4,7 @@ neovim - for terminal text editor
 picom - compositor
 feh - wallpaper manager
 ranger - terminal file browser
+ncdu - terminal disk usage viewer
 
 eza - ls replacement (alias ls='eza -alh --color=always --icons')
 bat - modern cat replacement
