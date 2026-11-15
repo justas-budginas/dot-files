@@ -160,4 +160,3 @@ See [security](docs/security.md), [setup/dependencies](docs/setup-notes.md),
 [future bootstrap](docs/bootstrap-roadmap.md).
 
 This is **not** a full backup of home, application state, disks, EFI or the OS.
-The Local LLM project is intentionally separate and is not imported or managed.
