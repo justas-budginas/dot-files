@@ -1,0 +1,56 @@
+# Crimson desktop: contextual information only, no custom commands or telemetry.
+add_newline = true
+format = "$username$hostname$directory$git_branch$git_status$cmd_duration$status$line_break$character"
+
+[username]
+show_always = false
+style_user = "#adb1bf"
+style_root = "bold #f06573"
+format = "[$user]($style) "
+
+[hostname]
+ssh_only = true
+ssh_symbol = ""
+style = "#adb1bf"
+format = "[@$hostname]($style) "
+
+[directory]
+style = "bold #e44759"
+truncation_length = 3
+truncate_to_repo = false
+read_only = " ro"
+read_only_style = "#f06573"
+
+[git_branch]
+symbol = "git:"
+style = "#66c7c5"
+format = "[$symbol$branch]($style) "
+
+[git_status]
+style = "#e8b86d"
+format = '([\[$all_status$ahead_behind\]]($style) )'
+modified = '!${count}'
+staged = '+${count}'
+untracked = '?${count}'
+deleted = '-${count}'
+renamed = '>${count}'
+conflicted = '=${count}'
+stashed = 's${count}'
+ahead = '>${count}'
+behind = '<${count}'
+diverged = '<${behind_count}>${ahead_count}'
+
+[cmd_duration]
+min_time = 2000
+format = "[took $duration]($style) "
+style = "#adb1bf"
+
+[status]
+disabled = false
+format = "[exit $status]($style) "
+style = "bold #f06573"
+
+[character]
+success_symbol = "[❯](bold #e44759)"
+error_symbol = "[❯](bold #f06573)"
+vimcmd_symbol = "[❮](bold #66c7c5)"

@@ -1,0 +1,30 @@
+{
+  "capture_policy": "Only existing visually reviewed controlled captures. No current workspace screenshots. Frames and resize added for presentation; application pixels otherwise unchanged.",
+  "files": [
+    {
+      "context": "Existing controlled verification capture; framed/resized, not a fresh capture of current workspace.",
+      "height": 716,
+      "path": "assets/screenshots/desktop.png",
+      "sha256": "9f86429e9650508ef1f9dee4297940b255190ae95a586c9727a779a78fc98fb8",
+      "source": "wallpaper/combined-desktop.png",
+      "width": 2000
+    },
+    {
+      "context": "Existing controlled verification capture; framed/resized, not a fresh capture of current workspace.",
+      "height": 806,
+      "path": "assets/screenshots/lockscreen.png",
+      "sha256": "ca329f02b661b5dfb281dc31037d1458fc3fda6411f9be4ee1a1ed032341790a",
+      "source": "lock-notify-borders/hyprlock-DP-1-empty.png",
+      "width": 1184
+    },
+    {
+      "context": "Existing controlled verification capture; framed/resized, not a fresh capture of current workspace.",
+      "height": 806,
+      "path": "assets/screenshots/greeter.png",
+      "sha256": "fdce5e097a42eb878821f874a8c8e6d27542a6fb54d1adea7a30fa08ba60ed15",
+      "source": "greeter-single-form/after-preview-DP-1.png",
+      "width": 1184
+    }
+  ],
+  "schema_version": 1
+}

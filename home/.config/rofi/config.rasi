@@ -1,0 +1,8 @@
+configuration {
+    font: "Inter 11";
+    show-icons: true;
+    icon-theme: "Flat-Remix-Red-Dark";
+    display-drun: "Applications";
+}
+/* Keep the existing `rofi -show drun` launcher command and Super+R binding. */
+@theme "launcher.rasi"

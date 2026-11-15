@@ -1,0 +1,16 @@
+/* Native Wayland: stable output-relative placement, not an icon-attached popup.
+ * This backend adds Waybar's 52px reserved area: 8px becomes screen y=60.
+ * Verified here: positive x-offset insets the northeast anchor by 10px.
+ */
+@import "crimson.rasi"
+window {
+    location: northeast;
+    anchor: northeast;
+    width: 260px;
+    x-offset: 10px;
+    y-offset: 8px;
+}
+inputbar { children: [ prompt ]; }
+listview { lines: 5; }
+element { padding: 11px 12px; }
+element-icon { enabled: false; }

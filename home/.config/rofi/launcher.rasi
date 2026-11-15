@@ -1,0 +1,10 @@
+/* Super+R: centered independently of the contextual power menu. */
+@import "crimson.rasi"
+window {
+    location: center;
+    anchor: center;
+    width: 600px;
+    x-offset: 0px;
+    y-offset: 0px;
+}
+listview { lines: 8; }

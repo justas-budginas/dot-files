@@ -1,0 +1,16 @@
+# Crimson Desktop — presentation only; keep timeout and default interaction rules.
+default-timeout=5000
+font=Inter 11
+background-color=#171920ff
+text-color=#edeef2ff
+border-color=#773341ff
+border-size=1
+border-radius=12
+width=360
+height=140
+padding=12
+progress-color=over #77334180
+
+# No urgency-specific timeout override: preserve existing expiry behavior.
+[urgency=critical]
+border-color=#f05c6bff

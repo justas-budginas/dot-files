@@ -1,0 +1,5 @@
+* text=auto
+*.png -text
+*.py text eol=lf
+scripts/* text eol=lf
+*.sh text eol=lf

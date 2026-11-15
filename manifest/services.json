@@ -1,0 +1,26 @@
+{
+  "system": [
+    "NetworkManager-dispatcher.service",
+    "NetworkManager-wait-online.service",
+    "NetworkManager.service",
+    "getty@.service",
+    "greetd.service",
+    "grub-btrfsd.service",
+    "remote-fs.target",
+    "snapper-cleanup.timer",
+    "snapper-timeline.timer",
+    "sshd.service",
+    "swayosd-libinput-backend.service",
+    "systemd-timesyncd.service",
+    "systemd-userdbd.socket",
+    "ufw.service"
+  ],
+  "user": [
+    "gnome-keyring-daemon.socket",
+    "p11-kit-server.socket",
+    "pipewire-pulse.socket",
+    "pipewire.socket",
+    "wireplumber.service",
+    "xdg-user-dirs.service"
+  ]
+}

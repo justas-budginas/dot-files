@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# Keep this menu and its confirmations on the output of the clicked bar.
+# If the Hyprland query is unavailable, Rofi uses its native output selection.
+rofi_args=(-theme "$HOME/.config/rofi/powermenu.rasi" -no-show-icons -no-custom -selected-row 0)
+# Menu-like mouse interaction, scoped to power/confirmation dialogs only.
+rofi_args+=(-hover-select -me-select-entry '' -me-accept-entry MousePrimary)
+if monitor=$(hyprctl repl 'local m = hl.get_monitor_at_cursor(); return m and m.name or ""' 2>/dev/null) && [[ -n "$monitor" ]]; then
+    rofi_args+=(-m "$monitor")
+fi
+
+choice=$(printf 'Lock\nLogout\nSuspend\nReboot\nShutdown' | rofi -dmenu -i -p 'Power' -u 3,4 "${rofi_args[@]}")
+
+confirm() {
+    local answer
+    answer=$(printf 'No\nYes' | rofi -dmenu -p "Confirm $1?" -u 1 "${rofi_args[@]}")
+    [[ "$answer" == "Yes" ]]
+}
+
+case "$choice" in
+    Lock)
+        hyprlock
+        ;;
+    Logout)
+        confirm "logout" && hyprctl dispatch 'hl.dsp.exit()'
+        ;;
+    Suspend)
+        confirm "suspend" && systemctl suspend
+        ;;
+    Reboot)
+        confirm "reboot" && systemctl reboot
+        ;;
+    Shutdown)
+        confirm "shutdown" && systemctl poweroff
+        ;;
+esac

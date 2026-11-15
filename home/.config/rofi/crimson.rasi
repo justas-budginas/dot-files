@@ -1,0 +1,72 @@
+/* Crimson Dashboard v2 palette; shared presentation, never positioning. */
+* {
+    font: "Inter 11";
+    background-color: transparent;
+    text-color: #edeef2;
+    graphite: #111318;
+    card: #1a1c23;
+    border: #773341;
+    crimson: #e44759;
+    secondary: #adb1bf;
+    spacing: 0;
+}
+window {
+    background-color: @graphite;
+    border: 1px;
+    border-color: @border;
+    border-radius: 14px;
+    padding: 12px;
+}
+mainbox {
+    children: [ inputbar, message, listview ];
+    spacing: 10px;
+}
+inputbar {
+    children: [ prompt, entry ];
+    background-color: @card;
+    border-radius: 9px;
+    padding: 12px;
+    spacing: 12px;
+}
+prompt { text-color: @crimson; }
+entry {
+    placeholder: "Search applications…";
+    placeholder-color: @secondary;
+    cursor-color: @crimson;
+}
+message { padding: 0 4px; }
+textbox { text-color: @secondary; }
+listview {
+    columns: 1;
+    spacing: 4px;
+    scrollbar: false;
+    fixed-height: false;
+    cycle: true;
+}
+element {
+    padding: 10px 12px;
+    spacing: 12px;
+    border-radius: 8px;
+}
+element normal normal { background-color: transparent; }
+element alternate normal { background-color: transparent; }
+element selected normal {
+    background-color: #382029;
+    text-color: #ff8292;
+    border: 0 0 0 2px;
+    border-color: @crimson;
+}
+element normal urgent, element alternate urgent { text-color: #ff8292; }
+element selected urgent {
+    background-color: #812c3b;
+    text-color: #edeef2;
+}
+element-text {
+    vertical-align: 0.5;
+    background-color: inherit;
+    text-color: inherit;
+}
+element-icon {
+    size: 28px;
+    background-color: inherit;
+}

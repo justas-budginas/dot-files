@@ -1,0 +1,36 @@
+# Future bootstrap: design only
+
+No install/restore/apply module is implemented or tested on a fresh system.
+The manifest already records individual destination paths, modes and restoration
+policy so a future preview can explain each proposed action.
+
+Implement and test independently, first in a disposable Arch VM:
+
+1. **Preflight:** correct host/user, Arch base, network, mount layout, free space,
+   recovery access and independent backups. Resolve account UID/GID dynamically.
+2. **Packages:** separately reviewed native/foreign lists; install missing items
+   only. Review AUR build scripts, do not blindly upgrade or install LLM tools.
+3. **User config:** preview mapping from `home/` to chosen home, back up existing
+   files, preserve approved modes; explicitly review hardcoded account paths.
+4. **Appearance/assets:** install theme/font packages, approved images and
+   individually reviewed GSettings keys; verify outputs/hardware.
+5. **System config:** preview each manual-only `system/` mapping. Use narrow,
+   separately approved privileged transactions; never mass-copy `/etc`.
+   Preserve PAM/keyring/account semantics and recoverable greeter access.
+6. **Services:** interpret reviewed unit names/templates/aliases; distinguish
+   enable from start, skip absent units and request approval for both.
+7. **Verification:** compositor parsing/errors, bar helpers, lock/unlock,
+   output-specific forms, wallpaper/startup, portal/audio/notifications, SSH and
+   firewall access. Report observed versus user-confirmed results.
+
+Must be idempotent: dry-run first, compare state, avoid rewriting matching files,
+back up every replacement, stop on ambiguous edits and verify before disruption.
+No automatic greeter restart, logout, reboot or irreversible operations.
+
+Never automate partitioning, formatting, disk restoration, secrets import,
+key generation/import or authentication changes. GRUB/EFI, filesystem mounts,
+Snapper policy and firewall/network reconstruction require separate safeguards.
+
+This repository is not an independent full-system backup. Not backed up: personal
+data, app state, secrets, EFI, bootloader installation, SATA disks, system snapshots,
+root-only Snapper policy, network connection state or the Local LLM project.

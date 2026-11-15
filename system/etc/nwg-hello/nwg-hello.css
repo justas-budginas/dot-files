@@ -1,0 +1,59 @@
+/* Crimson Desktop, nwg-hello 0.5.1. Stock template and callbacks retained. */
+* {
+    font-family: Inter;
+    font-size: 15px;
+    color: #edeef2;
+}
+window {
+    background-color: #111318;
+    background-image: url("/usr/local/share/backgrounds/crimson-greeter/crimson-shared.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+#form-wrapper {
+    background-color: rgba(17, 19, 24, 0.88);
+    border-right: 1px solid #493039;
+}
+entry, combobox button {
+    background-image: none;
+    background-color: #1a1c23;
+    border: 1px solid #493039;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: none;
+}
+entry:focus, combobox button:focus {
+    border-color: #e44759;
+    box-shadow: inset 0 0 0 1px #9f203a;
+}
+entry selection {
+    background-color: #773341;
+    color: #edeef2;
+}
+button {
+    background-image: none;
+    background-color: #20222b;
+    border: 1px solid #493039;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: none;
+}
+button:hover { background-color: #35212b; border-color: #9b6379; }
+button:focus { border-color: #e44759; }
+button:active { background-color: #542330; }
+button:disabled { color: #adb1bf; }
+#login-button { background-color: #773341; border-color: #9f203a; }
+#login-button:hover { background-color: #9f203a; border-color: #e44759; }
+#power-button { background: none; border-color: transparent; }
+#power-button:hover { background-color: #35212b; border-color: #493039; }
+#power-button:focus { border-color: #e44759; }
+#welcome-label { font-size: 24px; color: #adb1bf; }
+#clock-label { font-family: Inter; font-size: 72px; font-weight: 300; }
+#date-label { font-size: 18px; color: #adb1bf; }
+#form-label { color: #adb1bf; }
+/* Installed template leaves the message label unnamed; theme all error text
+   through GTK's error class without altering the template/authentication code. */
+.error { color: #f05c6b; }
+menu, menuitem, popover { background-color: #1a1c23; color: #edeef2; }
+menuitem:hover { background-color: #542330; }

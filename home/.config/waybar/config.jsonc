@@ -1,0 +1,106 @@
+// Crimson Dashboard v2 — Waybar 0.16 / Hyprland.
+// One process creates a bar on every output; no monitor configuration is needed.
+{
+    "layer": "top",
+    "position": "top",
+    "height": 44,
+    "margin-top": 8,
+    "margin-left": 10,
+    "margin-right": 10,
+    "spacing": 7,
+
+    "modules-left": ["hyprland/workspaces"],
+    "modules-center": ["hyprland/window"],
+    "modules-right": [
+        "network", "cpu", "custom/gpu", "memory", "temperature", "pulseaudio",
+        "tray", "clock", "custom/power"
+    ],
+
+    // Dynamic, per-output workspaces. Do not steal workspaces from another display.
+    "hyprland/workspaces": {
+        "format": "{name}",
+        "all-outputs": false,
+        "sort-by": "number"
+    },
+    "hyprland/window": {
+        "format": "{title}",
+        "max-length": 38,
+        "icon": true,
+        "icon-size": 18,
+        "separate-outputs": true,
+        "tooltip-format": "{class}\n{title}"
+    },
+
+    "cpu": {
+        "interval": 2,
+        "format": " <span size=\"small\" foreground=\"#adb1bf\">CPU</span> <b>{usage}%</b>",
+        "tooltip-format": "CPU usage: {usage}%\nLoad average: {load}"
+    },
+    "custom/gpu": {
+        // Verified discrete GPU via PCI; never falls back to the Ryzen iGPU.
+        "exec": "python3 $HOME/.config/waybar/scripts/gpu.py",
+        "return-type": "json",
+        "interval": 5,
+        "format": "󰢮 <span size=\"small\" foreground=\"#adb1bf\">GPU</span> <b>{}</b>",
+        "escape": true,
+        "tooltip": true
+    },
+    "memory": {
+        "interval": 3,
+        "unit": "GiB",
+        "format": " <span size=\"small\" foreground=\"#adb1bf\">RAM</span> <b>{used:0.1f}</b><span foreground=\"#adb1bf\">/{total:0.1f} GiB</span>",
+        "tooltip-format": "Memory: {used:0.1f} / {total:0.1f} GiB ({percentage}%)\nAvailable: {avail:0.1f} GiB"
+    },
+    "temperature": {
+        // Ryzen Tctl. Resolve by device name, not the reboot-dependent hwmon number.
+        // If unavailable, Waybar disables this module rather than fabricating a value.
+        "hwmon-name": "k10temp",
+        "input-filename": "temp1_input",
+        "interval": 3,
+        "warning-threshold": 80,
+        "critical-threshold": 90,
+        "format": " <b>{temperatureC}°C</b>",
+        "tooltip-format": "CPU Tctl (k10temp): {temperatureC}°C"
+    },
+    "network": {
+        "interval": 2,
+        "format-ethernet": "<span foreground=\"#d993a0\">↓</span> {bandwidthDownBytes}  <span foreground=\"#d993a0\">↑</span> {bandwidthUpBytes}",
+        "format-wifi": "<span foreground=\"#d993a0\">↓</span> {bandwidthDownBytes}  <span foreground=\"#d993a0\">↑</span> {bandwidthUpBytes}",
+        "format-linked": "NET · No IP",
+        "format-disconnected": "NET · Offline",
+        "format-disabled": "NET · Disabled",
+        "tooltip-format": "{ifname} · {ipaddr}/{cidr}\nGateway: {gwaddr}\n↓ {bandwidthDownBytes}  ↑ {bandwidthUpBytes}",
+        "tooltip-format-disconnected": "No active network connection",
+        "tooltip-format-disabled": "Network disabled"
+    },
+    "pulseaudio": {
+        "format": "{icon} <b>{volume}%</b>",
+        "format-muted": " Mute",
+        "format-bluetooth": "{icon} <b>{volume}%</b> BT",
+        "format-bluetooth-muted": " Mute BT",
+        "format-icons": {
+            "headphone": "",
+            "headset": "",
+            "default": ["", "", ""]
+        },
+        "scroll-step": 1,
+        "max-volume": 100,
+        "tooltip-format": "{desc}\nVolume: {volume}% · Scroll to adjust\nClick: audio settings",
+        "on-click": "pavucontrol"
+    },
+    "tray": {
+        "icon-size": 18,
+        "spacing": 8
+    },
+    "clock": {
+        "interval": 30,
+        "format": "<span size=\"small\" foreground=\"#adb1bf\">{0:%a %d %b}</span>  <b>{0:%H:%M}</b>",
+        "format-alt": "<span foreground=\"#adb1bf\">{0:%Y-%m-%d}</span>  <b>{0:%H:%M}</b>",
+        "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>"
+    },
+    "custom/power": {
+        "format": "⏻",
+        "tooltip": false,
+        "on-click": "/home/neo/.local/bin/powermenu"
+    }
+}

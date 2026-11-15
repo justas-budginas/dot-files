@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+"""Read-only source validation and repository comparison."""
+import sys
+sys.dont_write_bytecode = True
+from dotfiles import main
+if __name__ == "__main__":
+    main("verify")

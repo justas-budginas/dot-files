@@ -1,0 +1,181 @@
+/* Crimson Dashboard v2 — GTK3 CSS, not browser CSS. */
+@define-color graphite #111318;
+@define-color card #1a1c23;
+@define-color border #3c2d35;
+@define-color crimson #e44759;
+@define-color text #edeef2;
+@define-color secondary #adb1bf;
+
+* {
+    font-family: "Inter", "Font Awesome 7 Free Solid", "Symbols Nerd Font", sans-serif;
+    font-size: 14px;
+    border: none;
+    border-radius: 0;
+    min-height: 0;
+    box-shadow: none;
+    text-shadow: none;
+    transition: none;
+}
+
+window#waybar {
+    background: transparent;
+    color: @text;
+}
+
+#workspaces,
+#window,
+#cpu,
+#custom-gpu,
+#memory,
+#temperature,
+#network,
+#pulseaudio,
+#tray,
+#clock,
+#custom-power {
+    background: linear-gradient(to bottom, alpha(#202129, 0.98), alpha(@card, 0.97));
+    border: 1px solid @border;
+    border-radius: 12px;
+    margin: 2px 0;
+    padding: 0 14px;
+    box-shadow: inset 0 1px alpha(#ffffff, 0.035);
+}
+
+#workspaces {
+    background: alpha(@graphite, 0.98);
+    padding: 0 4px;
+}
+
+#workspaces button {
+    background: transparent;
+    color: @secondary;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    margin: 4px 2px;
+    padding: 0 12px;
+    min-width: 18px;
+    font-weight: 600;
+}
+
+#workspaces button:hover {
+    background: #30212a;
+    color: @text;
+}
+
+#workspaces button.visible {
+    color: @text;
+    border-color: @border;
+}
+
+#workspaces button.active {
+    background: linear-gradient(to bottom, #ed5668, @crimson);
+    border-color: @crimson;
+    color: @graphite;
+}
+
+#workspaces button.urgent {
+    background: #ffd09a;
+    border-color: #ffd09a;
+    color: @graphite;
+}
+
+#window {
+    color: @text;
+    padding: 0 18px;
+    min-width: 160px;
+    border-color: #43303b;
+}
+
+#window image {
+    margin-right: 9px;
+}
+
+#window label {
+    font-weight: 500;
+}
+
+window#waybar.empty #window {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+#cpu {
+    border-bottom: 2px solid #9b3a4a;
+}
+
+#custom-gpu {
+    border-bottom: 2px solid #643440;
+}
+
+#custom-gpu.unavailable {
+    color: @secondary;
+}
+
+#temperature {
+    color: #d8c0c8;
+}
+
+#pulseaudio:hover,
+#clock:hover {
+    background: #30212a;
+    border-color: @crimson;
+}
+
+#pulseaudio.muted,
+#network.disconnected,
+#network.disabled,
+#network.linked,
+#temperature.warning {
+    color: #ffa4af;
+    background: #34212a;
+}
+
+#temperature.critical {
+    color: @text;
+    background: #812c3b;
+    border-color: @crimson;
+}
+
+#tray {
+    padding: 0 12px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background: #812c3b;
+    border-radius: 6px;
+}
+
+#clock {
+    font-weight: 600;
+}
+
+#custom-power {
+    background: #382029;
+    border-color: #773341;
+    color: #ff8292;
+    padding: 0 16px;
+    font-size: 18px;
+}
+
+#custom-power:hover {
+    background: @crimson;
+    border-color: @crimson;
+    color: @graphite;
+}
+
+tooltip {
+    background: @graphite;
+    border: 1px solid @border;
+    border-radius: 10px;
+}
+
+tooltip label {
+    color: @text;
+    padding: 7px;
+}
