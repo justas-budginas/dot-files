@@ -1,5 +1,11 @@
 # Future bootstrap: design only
 
+Phase A completes backup/documentation hardening only. Phase B implementation and
+Phase C disposable-system recovery rehearsal each require separate approval.
+No bootstrap prototype, VM restore or live restore was started during Phase A.
+Use `system-recovery-inventory.md` and `service-recovery-map.md` as observations
+and prerequisites, not machine-executable desired state.
+
 No install/restore/apply module is implemented or tested on a fresh system.
 The manifest already records individual destination paths, modes and restoration
 policy so a future preview can explain each proposed action.

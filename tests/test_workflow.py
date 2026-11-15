@@ -4,6 +4,8 @@ import sys
 sys.dont_write_bytecode = True
 from pathlib import Path
 import copy
+import contextlib
+import io
 import importlib.util
 import json
 import os
@@ -332,6 +334,128 @@ class Workflow(unittest.TestCase):
             d.json_bytes({"schema_version": 1, "files": images}))
         with self.assertRaisesRegex(d.Refused, "Unapproved"):
             self.snapshot()
+
+    def test_duplicate_mapping_and_unexpected_destination_refused(self):
+        self.entries.append(copy.deepcopy(self.entries[0]))
+        self.write_manifest()
+        with self.assertRaisesRegex(d.Refused, "Duplicate"):
+            self.snapshot()
+        self.entries.pop()
+        self.entries[0]["destination"] = "home/.config/other"
+        self.write_manifest()
+        with self.assertRaisesRegex(d.Refused, "mismatched"):
+            self.snapshot()
+
+    def test_mapping_reason_and_category_policy_validation(self):
+        original = copy.deepcopy(self.entries)
+        for changes in [{"reason": ""}, {"reason": "x" * 501},
+                        {"reason": "api_" + "key = " + "A" * 20},
+                        {"format": "png"}, {"restore": "manual-only"},
+                        {"elevated_read": True}, {"unknown_field": "unexpected"}]:
+            self.entries = copy.deepcopy(original)
+            self.entries[0].update(changes)
+            self.write_manifest()
+            with self.assertRaises(d.Refused):
+                self.snapshot()
+        self.entries = original
+        self.entries[0]["reason"] = "Reviewed shell configuration; no project data."
+        self.write_manifest()
+        self.snapshot().plan()
+
+    def test_missing_source_has_actionable_nondestructive_guidance(self):
+        (self.home / ".zshrc").unlink()
+        with self.assertRaisesRegex(d.Refused, "config-change-review.md") as error:
+            self.snapshot().plan()
+        self.assertIn("no automatic prune", str(error.exception))
+
+    def test_diff_preview_uses_requested_checkout_and_makes_no_writes(self):
+        self.snapshot().apply()
+        (self.home / ".zshrc").write_text("updated sandbox source\n")
+        snapshot = self.snapshot()
+        before = self.tree()
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            d.show_plan(snapshot.plan(), diff=True, root=self.repo)
+        self.assertIn("-initial configuration", output.getvalue())
+        self.assertIn("+updated sandbox source", output.getvalue())
+        self.assertEqual(before, self.tree())
+
+    def test_history_cannot_extend_live_image_approval(self):
+        self.make_gallery()
+        image = (self.repo / "assets/screenshots/desktop.png").read_bytes()
+        old = d.digest(image)
+        with patch.dict(d.IMAGE_HISTORY, {"crimson-left.png": [old]}):
+            # Historical snapshot accepted, but never a newly approved live source.
+            d.scan_snapshot_image(image, "crimson-left.png")
+            with self.assertRaises(d.Refused):
+                d.scan_image(image, "crimson-left.png")
+            with self.assertRaises(d.Refused):
+                d.scan_snapshot_image(image, "unreviewed.png")
+
+    def test_explicit_image_reapproval_can_use_normal_transaction_and_rollback(self):
+        self.make_gallery()
+        old = (self.repo / "assets/screenshots/desktop.png").read_bytes()
+        # A distinct valid PNG with the same pixels but another zlib encoding.
+        def chunk(kind, data):
+            return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data))
+        new = (old[:33] + chunk(b"IDAT", zlib.compress(b"\x00\x00\x00\x00", level=0)) +
+               chunk(b"IEND", b""))
+        self.assertNotEqual(d.digest(old), d.digest(new))
+        rel = ".local/share/wallpapers/crimson/crimson-left.png"
+        source = self.home / rel
+        source.parent.mkdir(parents=True)
+        source.write_bytes(old)
+        self.entries.append({"source": "$HOME/" + rel, "destination": "home/" + rel,
+                             "kind": "file", "format": "png", "mode": "0644",
+                             "elevated_read": False, "restore": "user-review",
+                             "reason": "Visually reviewed wallpaper fixture."})
+        self.write_manifest()
+        with patch.dict(d.IMAGE_HASHES, {"crimson-left.png": d.digest(old)}):
+            self.snapshot().apply()
+        source.write_bytes(new)
+        with self.assertRaises(d.Refused):
+            self.snapshot().plan()  # Original behavior: no silent pin refresh.
+        with patch.dict(d.IMAGE_HASHES, {"crimson-left.png": d.digest(new)}), \
+             patch.dict(d.IMAGE_HISTORY, {"crimson-left.png": [d.digest(old)]}):
+            before = self.tree()
+            self.snapshot().plan()
+            self.assertEqual(before, self.tree())
+            self.snapshot().apply()
+            self.assertEqual((self.repo / ("home/" + rel)).read_bytes(), new)
+            s = self.snapshot()
+            s.restore(s.internal / s.state["last_transaction"], apply=True)
+            self.assertEqual((self.repo / ("home/" + rel)).read_bytes(), old)
+            self.assertEqual(source.read_bytes(), new)
+
+    def test_malformed_image_history_fails_closed(self):
+        for value in [["invalid"], [{"not": "a hash"}], ["a" * 64, "a" * 64]]:
+            with patch.dict(d.IMAGE_HISTORY, {"crimson-left.png": value}):
+                with self.assertRaises(d.Refused):
+                    self.snapshot()
+
+    def test_partial_existing_update_failure_restores_original_copies_and_state(self):
+        self.snapshot().apply()
+        s = self.snapshot()
+        previous = s.load_state()
+        for rel in [".zshrc", ".local/bin/powermenu"]:
+            (self.home / rel).write_text("updated source\n")
+        real = d.atomic
+        failed = False
+
+        def injected(path, data, mode=0o600):
+            nonlocal failed
+            real(path, data, mode)
+            if path == self.repo / "home/.local/bin/powermenu" and not failed:
+                failed = True
+                raise OSError("injected existing-copy failure")
+
+        with patch.object(d, "atomic", side_effect=injected):
+            with self.assertRaises(OSError):
+                self.snapshot().apply()
+        self.assertEqual(self.snapshot().load_state(), previous)
+        for rel in [".zshrc", ".local/bin/powermenu"]:
+            self.assertEqual((self.repo / "home" / rel).read_text(), "initial configuration\n")
+            self.assertEqual((self.home / rel).read_text(), "updated source\n")
 
 
 if __name__ == "__main__":

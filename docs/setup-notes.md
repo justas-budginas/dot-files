@@ -35,10 +35,12 @@ included wholesale.
   unchanged. A future restore must explicitly review path substitutions for a
   different account. It must look up account UID/GID, never assume 1000.
 - Zram size, SSH `AllowUsers neo`, output names and display modes are host-specific.
-- `ufw.conf` contains enable/logging preferences only; firewall rules are not backed up.
-- No custom WoL configuration was found in the inspected NetworkManager conf.d,
-  dispatcher, systemd network, udev or custom-unit paths. Connection profiles were
-  deliberately not read. WoL reconstruction remains deferred.
+- `ufw.conf` contains enable/logging preferences only; raw firewall rules are not
+  copied. Phase A now records a sanitized, directly observed loaded-policy summary.
+- WoL persistence was subsequently verified as the NetworkManager active Ethernet
+  connection's `magic` property, with hardware flags `g`. Only that specific
+  property was queried, not a profile/secret export. No custom service is assumed.
+  See the dated [system recovery inventory](system-recovery-inventory.md).
 
 ## Selected settings outside plain files
 
@@ -63,8 +65,10 @@ source needs a separately reviewed minimal read/export step.
 
 greetd/nwg-hello, zram, SSH daemon policy, initramfs/package-manager preferences and
 the Snapper timer override are snapshots for **manual-only** restore. They do not
-include PAM, host keys, runtime state, system defaults, disk layout or root-only
-Snapper policy. Firewall, SSH and greeter recovery depend on more than these files.
+include PAM, host keys, runtime state, system defaults or a raw root-only Snapper
+config. Phase A adds sanitized Snapper retention, mount/boot and firewall/WoL
+observations in separate reviewed docs—not new raw-file sync mappings. Firewall,
+SSH, boot and greeter recovery still depend on more than the copied files.
 
 ## Wallpapers
 

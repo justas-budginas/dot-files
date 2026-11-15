@@ -43,16 +43,31 @@ Inventories contain reviewed package/service names and selected appearance
 values only. LLM/compute-related package names or new unreviewed service names
 stop inventory proposals for separate curation; no LLM project is traversed.
 
+Phase A adds only three explicitly allowed documentation paths and a dedicated
+read-only policy inspector with fixture tests. `manifest/configs.json` still has
+32 entries; no raw firewall, Snapper, GRUB, fstab or network profile was added.
+The inspector is not called by sync and has no write/apply mode. Its optional
+privileged invocation requires exact approval and the system authorization dialog.
+It exports only selected root-policy keys and sanitized summaries, never raw
+command stderr, addresses, connection identities or SecureOn values.
+
+Live wallpaper pins remain strict. Explicit, individually reviewed prior pins
+can apply to repo/index/rollback copies only; default history is empty and no
+tool edits either approval list. Mapping/image changes follow the paired-diff
+procedure in `config-change-review.md`.
+
 ## Git/GitHub
 
 No tool stages, commits, pushes, changes Git identity/remotes or invokes SSH.
 Existing GitHub SSH authentication is left intact. Check remote visibility
-yourself; initially prefer private. Choose author identity and approve the first
-commit separately, then approve the first push after reviewing the staged diff.
+yourself; private is recommended. The existing snapshot has already been committed
+and its GitHub branch was verified. Review configured author identity locally,
+then obtain approval for each new commit and push after inspecting staged content.
 No history rewriting or force-push behavior is implemented.
 
-Audit covers current tree/index, **not every historical Git object**. Existing
-history was a README-only initial commit at inspection. Accidentally committed
+Audit covers current tree/index, **not every historical Git object**. Current
+history includes the published snapshot and earlier commits; the README-only
+initial-commit observation belongs to the archived foundation phase. Accidentally committed
 credentials require revocation and a separately planned cleanup, not merely
 adding an ignore rule.
 

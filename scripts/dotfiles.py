@@ -47,12 +47,16 @@ IMAGE_HASHES = {
     "crimson-right.png": "111186ee08f0d9f38491a47a34f883e381dcb32c0303bf12184a6e4779456f7c",
     "crimson-shared.png": "c74579c525cf56ad255fb6724775514b922857b1958e1787ae64e76ab2aeaca7",
 }
+# Optional, individually reviewed prior hashes for repository/index/rollback copies.
+# Live sources must STILL match IMAGE_HASHES. Never refreshed by a command.
+IMAGE_HISTORY = {}
 GALLERY_PATHS = {
     "assets/screenshots/desktop.png", "assets/screenshots/lockscreen.png",
     "assets/screenshots/greeter.png",
 }
 TOOLS = ("sync-from-system", "audit-repo", "verify-manifest",
-         "rollback-sync", "propose-inventories", "dotfiles.py")
+         "rollback-sync", "propose-inventories", "dotfiles.py",
+         "inspect-recovery-policy", "recovery_policy.py")
 INFRA = {
     "README.md", ".gitignore", ".gitattributes", "manifest/configs.json",
     "docs/setup-notes.md", "docs/recovery-notes.md", "docs/bootstrap-roadmap.md",
@@ -60,6 +64,8 @@ INFRA = {
     "manifest/packages-native-explicit.txt", "manifest/packages-foreign.txt",
     "manifest/services.json", "manifest/appearance.json", "manifest/screenshots.json",
     "docs/screenshots.md",
+    "docs/system-recovery-inventory.md", "docs/service-recovery-map.md",
+    "docs/config-change-review.md", "tests/test_recovery.py",
 } | {"scripts/" + n for n in TOOLS}
 LLM = re.compile(r"llm|ollama|llama|vllm|open.?webui|litellm|kobold|cuda|rocm|pytorch|tensorflow", re.I)
 SAFE_SERVICES = {
@@ -178,6 +184,46 @@ def scan_image(data, name, approved_hash=None):
             f"Image changed/unapproved; review its new hash: {name}")
 
 
+def scan_snapshot_image(data, name):
+    """Only explicit current/prior pins; never extends live-source approval."""
+    basename = Path(name).name
+    approved = {IMAGE_HASHES.get(basename)} | set(IMAGE_HISTORY.get(basename, []))
+    require(basename in IMAGE_HASHES and digest(data) in approved,
+            f"Snapshot image is not individually approved: {name}")
+    scan_image(data, name, digest(data))
+
+
+def validate_entry(e, seen):
+    require(isinstance(e, dict), "Mapping must be an object")
+    required = {"source", "destination", "kind", "format", "mode", "elevated_read", "restore"}
+    require(required <= e.keys() and e.keys() <= required | {"reason"},
+            "Missing/unknown mapping fields")
+    source, destination = e["source"], e["destination"]
+    require(isinstance(source, str), "Source must be a string")
+    relative(destination)
+    if source.startswith("$HOME/"):
+        rel = source[len("$HOME/"):]
+        require(rel in APPROVED_HOME, f"Source outside approved home scope: {source}")
+        expected, policy = "home/" + rel, "user-review"
+    else:
+        require(source in APPROVED_SYSTEM, f"Unapproved system source: {source}")
+        expected, policy = "system" + source, "manual-only"
+    require(destination == expected and destination not in seen,
+            f"Duplicate/mismatched destination: {destination}")
+    require(e["kind"] == "file" and e["elevated_read"] is False,
+            "Only nonprivileged regular-file snapshots are supported")
+    require(e["format"] in ("text", "png") and e["mode"] in ("0644", "0755"),
+            "Unexpected format/mode")
+    require((e["format"] == "png") == source.endswith(".png"),
+            "Image/text category does not match the approved source")
+    require(e["restore"] == policy, "Restore policy does not match source scope")
+    if "reason" in e:
+        require(isinstance(e["reason"], str) and 0 < len(e["reason"].strip()) <= 500,
+                "Reason must be a nonempty, bounded review description")
+        scan_text(e["reason"].encode(), "mapping reason")
+    seen.add(destination)
+
+
 def git(root, *args, binary=False):
     env = os.environ.copy()
     env["GIT_OPTIONAL_LOCKS"] = "0"
@@ -238,23 +284,14 @@ class Snapshot:
         require(isinstance(self.entries, list) and self.entries, "Empty manifest")
         seen = set()
         for e in self.entries:
-            source, destination = e["source"], e["destination"]
-            relative(destination)
-            if source.startswith("$HOME/"):
-                rel = source[len("$HOME/"):]
-                require(rel in APPROVED_HOME, f"Source outside approved home scope: {source}")
-                expected = "home/" + rel
-            else:
-                require(source in APPROVED_SYSTEM, f"Unapproved system source: {source}")
-                expected = "system" + source
-            require(destination == expected and destination not in seen,
-                    f"Duplicate/mismatched destination: {destination}")
-            seen.add(destination)
-            require(e["kind"] == "file" and e["elevated_read"] is False,
-                    "Only nonprivileged regular-file snapshots are supported")
-            require(e["format"] in ("text", "png") and e["mode"] in ("0644", "0755"),
-                    "Unexpected format/mode")
-            require(e["restore"] in ("user-review", "manual-only"), "Bad restore policy")
+            validate_entry(e, seen)
+        require(set(IMAGE_HISTORY) <= IMAGE_HASHES.keys(), "Unknown historical image path")
+        for hashes in IMAGE_HISTORY.values():
+            require(isinstance(hashes, list)
+                    and all(isinstance(h, str) and re.fullmatch(r"[0-9a-f]{64}", h)
+                            for h in hashes)
+                    and len(hashes) == len(set(hashes)),
+                    "Invalid/duplicate historical image pin")
         self.gallery = {}
         gallery_path = self.root / "manifest/screenshots.json"
         safe(gallery_path)
@@ -319,7 +356,7 @@ class Snapshot:
                 e = by_name[name]
                 require(mode == int(e["mode"], 8), f"Snapshot mode drift: {name}")
                 if e["format"] == "png":
-                    scan_image(data, name)
+                    scan_snapshot_image(data, name)
                     return
             scan_text(data, name)
 
@@ -364,7 +401,9 @@ class Snapshot:
             try:
                 data, mode = self.content(e, self.source(e))
             except FileNotFoundError:
-                raise Refused(f"Missing source: {e['source']}; no repository deletion performed") from None
+                raise Refused(f"Missing source: {e['source']}; no repository deletion performed. "
+                              "Preserve its copy; review any rename/removal using "
+                              "docs/config-change-review.md (no automatic prune).") from None
             name = e["destination"]
             target = self.root / name
             current = existing(target)
@@ -521,13 +560,14 @@ class Snapshot:
         atomic(backup / "journal.json", json_bytes(journal))
 
 
-def show_plan(plan, diff=False):
+def show_plan(plan, diff=False, root=None):
     for p in plan:
         e = p["entry"]
         print(f"{p['action']:9} {e['source']} -> {e['destination']} "
               f"mode={p['mode']:04o} sha256={p['after']['sha256']}")
         if diff and p["action"] != "UNCHANGED" and e["format"] == "text":
-            target = Path(__file__).absolute().parent.parent / e["destination"]
+            target = (Path(root) if root is not None else
+                      Path(__file__).absolute().parent.parent) / e["destination"]
             old = scan_text(read_file(target)[0], e["destination"]) if p["before"] else ""
             print("".join(difflib.unified_diff(old.splitlines(True),
                   p["data"].decode().splitlines(True), fromfile="repo/" + e["destination"],
@@ -597,7 +637,7 @@ def main(command):
         elif args.apply:
             snapshot.apply()
         else:
-            show_plan(snapshot.plan(), args.diff)
+            show_plan(snapshot.plan(), args.diff, snapshot.root)
             print("DRY RUN: no files copied, no state/backups created, no Git index changes.")
     except (OSError, ValueError, KeyError, Refused, subprocess.SubprocessError) as error:
         print(f"REFUSED: {error}", file=sys.stderr)

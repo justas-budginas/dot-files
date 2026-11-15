@@ -57,10 +57,17 @@ Copy-based snapshot of the working Arch + Hyprland **Crimson Desktop**.
 Live configuration stays in its original location: no symlinks, auto-commits,
 push automation, service restarts or restore actions.
 
-**Current status:** first local snapshot and reviewed inventories created.
-No files have been staged, committed or pushed by this workflow: this is **not
-yet an off-machine backup**. Commit and push require separate approval.
-The existing `develop` branch and GitHub SSH remote were preserved.
+**Current status (2026-11-15):** the existing configuration snapshot is committed
+and present on GitHub. After the user's pull, local `develop`, `origin/develop`
+and the checked GitHub branch matched `5ff9f41`. Remote visibility is not verified.
+**Phase A improvements are local, uncommitted changes** pending review; this
+phase does not stage, commit or push. `develop` remains the source of truth.
+
+Phase A adds a [sanitized system recovery inventory](docs/system-recovery-inventory.md),
+[service prerequisites](docs/service-recovery-map.md), and a
+[review-only mapping/image update procedure](docs/config-change-review.md).
+Bootstrap implementation (Phase B) and disposable-system recovery rehearsal
+(Phase C) require separate approval; neither has started.
 
 ## Layout
 
@@ -75,8 +82,10 @@ scripts/verify-manifest    validate sources, modes, hashes and planned changes
 scripts/audit-repo         inspect working tree (also ignored files) + Git index
 scripts/rollback-sync      dry-run by default; undo repository snapshot only
 scripts/propose-inventories  print reviewed-shape inventories; never write them
+scripts/inspect-recovery-policy  separately approved, sanitized privileged reads only
 scripts/dotfiles.py         shared standard-library implementation
 tests/test_workflow.py      disposable fake-home/Git-repo tests
+tests/test_recovery.py      sanitized policy fixtures; no privileged/live commands
 docs/                      security, dependencies, recovery and bootstrap design
 home/                      approved copies, mirroring $HOME
 system/                    approved copies, mirroring /
@@ -103,16 +112,21 @@ After approving the proposed copies:
 
 ```sh
 ./scripts/sync-from-system --apply
-./scripts/sync-from-system --apply
 ./scripts/audit-repo
 git diff --check
 git status --short
 git diff
 ```
 
-The second apply should report no changes and must not rewrite state.
+Matching sources yield no changes; sandbox tests cover repeated apply behavior.
+Any repeat real-system apply used for verification also requires approval.
 New/untracked copies are absent from normal `git diff`: inspect them using
 the sync `--diff`, your editor, and explicit staged review.
+
+Day to day: edit live config deliberately → dry-run/diff → approve repo-only
+apply → audit → review status, diff and new files → deliberate commit/push →
+check the remote branch HEAD. New paths and PNG replacements need approval via
+the [review procedure](docs/config-change-review.md); they are not auto-discovered.
 
 **Only with separate staging/commit/push approval**, stage exact reviewed paths
 (not a blanket `git add -A`), inspect `git diff --cached --stat` and
@@ -120,9 +134,26 @@ the sync `--diff`, your editor, and explicit staged review.
 helps review updates to already tracked files, but does not normally add new ones.
 No tool here stages, commits, pushes or modifies your SSH configuration.
 
+Example review/publish sequence, **not executed by tooling** and requiring those
+approvals:
+
+```sh
+git add -p
+git diff --cached --stat
+git diff --cached
+./scripts/audit-repo
+git diff --cached --check
+git commit -m "Improve sanitized system recovery documentation"
+git push origin develop
+git ls-remote origin refs/heads/develop
+```
+
+Inspect new files explicitly before staging their exact paths. Never force-push
+or assume a cached `origin/develop` ref proves the current GitHub HEAD.
+
 Current remote: `git@github.com:justas-budginas/dot-files.git`.
 Remote privacy has not been verified; private is recommended initially.
-Author name/email are unset: choose repository-local values before committing.
+Git author name/email are configured; verify their suitability locally before committing.
 Commit email can become public; GitHub's no-reply email is an option.
 
 ## Inventories are a separate review step
@@ -144,7 +175,9 @@ Routine configuration sync never refreshes inventories.
 - Missing sources fail closed; no automatic deletions/pruning.
 - Symlinks (including parent components), special files, oversized content,
   non-UTF8/binary text and recognizable credentials are refused.
-- Wallpapers must match the three reviewed PNG hashes and metadata-free chunks.
+- Live wallpapers must match current reviewed hashes and metadata-free chunks.
+  Exact prior repo/index/rollback pins may be retained only after explicit review;
+  no command refreshes image approvals.
 - Previously synced repository edits/deletions and staged conflicting snapshots
   are protected. There is deliberately no force/overwrite flag.
 - Copies use temporary files and atomic rename. Local transactions and rollback
@@ -158,5 +191,9 @@ Routine configuration sync never refreshes inventories.
 See [security](docs/security.md), [setup/dependencies](docs/setup-notes.md),
 [recovery](docs/recovery-notes.md), [verification](docs/verification.md) and
 [future bootstrap](docs/bootstrap-roadmap.md).
+
+The recovery inventory describes actual observed UFW/Snapper/Btrfs/GRUB/WoL
+settings without copying private network profiles, disk identifiers or snapshot
+data. Observation is not proof that a fresh-machine restore has been rehearsed.
 
 This is **not** a full backup of home, application state, disks, EFI or the OS.

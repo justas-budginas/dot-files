@@ -1,84 +1,98 @@
-# Repository-only recovery
+# Two different kinds of recovery
 
-Nothing here deploys files back to the live system. Snapshot rollback reverses
-repository copies only. It must never change the running desktop, authentication,
-services or idle behavior.
+## A. `rollback-sync`: repository copies only
 
-## Undo the latest applied sync
+This command reverses a previous live → repository sync. It **never** restores a
+live configuration, changes services or reverts a running desktop. It also does
+not revert Git commits, stage files or restore a full machine.
+
+Preview only:
 
 ```sh
 cd ~/Repos/dot-files
 ./scripts/rollback-sync --dry-run
+```
+
+Only after reviewing the exact proposed repository changes and obtaining approval:
+
+```sh
 ./scripts/rollback-sync --apply
 ./scripts/audit-repo
 git status --short
 ```
 
-The latest transaction is recorded under `.git/dotfiles-sync/state.json`.
-Each unique transaction retains a journal and any overwritten repository files.
-Rollback preflights original hashes/modes and accepts original or copied states;
-later edits cause refusal. New copies are removed only if their state matches
-the transaction. New directories are removed empty-only. Existing files restore
-atomically with their original modes. No Git reset/checkout/index mutation occurs.
-Do not blindly roll back after staging or committing a sync; review resulting
-working/index differences yourself. Backups are local, not versioned.
+The latest transaction is recorded in `.git/dotfiles-sync/state.json`; unique
+transaction directories retain journals and overwritten repo originals.
+All targets are preflighted against their exact original/copied hashes and modes.
+Later edits, unexpected directory content, missing/corrupt originals and stale
+transactions cause refusal. Existing files restore atomically; newly introduced
+copies are removed only if their current state matches. Directories are removed
+empty-only. The previous state is restored, permitting reverse-order recovery.
 
-Undoing updates works in reverse order; the state points back to the previous
-transaction after rollback. Repeating a completed rollback is safe when explicitly
-targeting that same transaction and no later state has superseded it.
+**Published snapshot warning:** a historical transaction may have introduced
+files that are now tracked/committed. Its rollback can propose working-tree
+deletions of those snapshots; it does not remove their Git history. Never execute
+it merely to undo a README edit or uninstall the desktop. Inventory/gallery/doc
+changes are independent of a configuration-copy transaction.
 
-## Interrupted sync / recovery
+No collision/force override exists. There is no automatic prune. The transaction
+backup is local `.git` metadata, not an independent backup and not transported by
+a clone. Removing/changing manifest mappings may block old recovery scope; review
+that relationship before deleting mappings or history.
 
-Ordinary copy or post-check exceptions attempt automatic repository rollback.
-An unsuccessful rollback prints both errors and retains all recovery artifacts.
-Power loss, SIGKILL, disk failure and some process termination cannot guarantee
-automatic rollback. A journal blocks normal sync rather than silently proceeding.
+### Interrupted transactions
 
-Use the transaction basename printed in the diagnostic:
+Normal copy/post-check exceptions attempt automatic repo-only rollback. Original
+and rollback errors are separately reported if both fail. SIGKILL, power loss,
+filesystem failure or some process termination may prevent automatic recovery.
+Unfinished journals block blind reruns.
+
+Use the **actual** transaction basename from the diagnostic:
 
 ```sh
 ./scripts/rollback-sync --transaction transaction-HEX --dry-run
-./scripts/rollback-sync --transaction transaction-HEX --apply
 ```
 
-Replace `transaction-HEX` with the actual generated name. Corrupt/missing journals,
-unexpected temporary files or changed manifests may require manual inspection.
-Never delete broad paths or bypass the scope guards. Empty-only cleanup may stop
-if another file was added to a newly created directory.
+After separate approval, use the same arguments with `--apply`. Corrupt/missing
+journals, unexpected files, changed mappings or ambiguous content require manual
+inspection. Never delete journals or broad paths to defeat a refusal.
 
-## Repository manual edits
+### Undoing the Phase A repo edits
 
-After a sync, edit the live source for intentional configuration changes, then
-review the sync dry-run. If both the repo copy and live source changed, reconcile
-them manually with an editor after preserving both versions; there is no force
-flag. Missing sources are errors, not deletion requests. Removing an entry/copy
-requires separate human review, including any Git deletion.
+Phase A began from clean `develop` at `5ff9f41` after the user pulled GitHub's
+branch. Unrelated/user changes and the full history are preserved. These edits
+are not a configuration-sync transaction and must not be undone with rollback-sync.
 
-## Undo this uncommitted foundation
+Review `git status --short` and file-by-file diffs against that baseline. An
+ignored, repository-local copy of the original tooling/docs/manifests is under
+`.git/dotfiles-phase-a-20261115-203233-d738319e/`, with a checksum manifest.
+Compare originals and any later work before individually restoring a file.
+Remove only this phase's new files after reviewing their current content.
+Do not reset the branch, discard later edits, delete the repo or restore an
+ancient README-only foundation. No live-system rollback is needed.
 
-The first local snapshot has now been applied; use the guarded rollback command
-above to undo its copies. Inventory and gallery publication are independent
-repository additions, not part of the live-source sync transaction.
+## B. Fresh-machine restoration: NOT implemented
 
-To abandon the uncommitted foundation, inspect `git status --short`; remove only
-the new files from this task, preserving any subsequent work. The sole pre-existing working file was
-`README.md` containing `# dot-files` and a newline; restore that content manually
-only if it has no later user edits. Do not delete/reinitialize the existing repo
-or reset its branch. No live-system rollback is required.
+The existing snapshot is committed and present on GitHub; **that does not make it
+a tested installer or disaster-recovery image**. Phase A improves configuration
+references, not deployment. Phases B/C require their own approvals.
 
-Before README/gallery changes, foundation originals were backed up locally in:
-`.git/dotfiles-readme-backup-4929739b3c434170b003ea6a5425da94/`.
-That directory contains a manifest and copies of the files changed in this phase.
-Compare against later work before restoring any of them; do not automatically
-overwrite later edits. New inventory/gallery files can be removed individually
-only after checking they still match this phase's content and are not needed.
-If removing the gallery, remove its registry/images/README references together;
-do not weaken the audit to tolerate unregistered binary files.
+Start future recovery from the selected `develop` revision and independently
+verified backups. Read [the sanitized inventory](system-recovery-inventory.md)
+and [service prerequisites](service-recovery-map.md) before deciding any action.
 
-## Restoring an actual machine later
+Manual prerequisites include:
 
-The manifest supplies source/destination mappings and manual-only classifications,
-not authorization to deploy them. A fresh install needs reviewed packages,
-account/home-path substitutions, original system ownership, existing-file backups,
-greeter recovery access and independent disk backups. Do not run a full restore
-on this working PC. See the bootstrap roadmap.
+- Independent personal-data/EFI/disk backups and securely stored keys/secrets.
+- Correct Arch base, account/home, dynamically resolved UID/GID and mount layout.
+- Explicit review of output names, GPU path, home paths and greeter GDK index.
+- Private reconstruction of LAN CIDR/NIC identity; local TTY and firewall/SSH
+  lockout prevention. Never import network connection profiles or secrets.
+- Snapper retention, Btrfs root/default-subvolume and GRUB/overlay semantics.
+  Root snapshots exclude separately mounted home/log/swap subvolumes.
+- Backups and validation before each approved system-file replacement; no bulk
+  `/etc` copy, auto service enable/start or automatic greetd restart.
+
+There is no permission here to restore this working PC, change bootloader/EFI,
+partition/format disks, import authentication material or roll back snapshots.
+See the design-only [bootstrap roadmap](bootstrap-roadmap.md).

@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+"""Dedicated, opt-in privileged READ-ONLY inspector; never writes files/settings."""
+import sys
+sys.dont_write_bytecode = True
+from recovery_policy import main
+
+if __name__ == "__main__":
+    main()
