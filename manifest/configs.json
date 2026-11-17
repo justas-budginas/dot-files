@@ -2,6 +2,7 @@
   "schema_version": 1,
   "description": "User-approved Crimson Desktop allowlist. Each entry is one regular file; no recursive imports. New entries require review.",
   "files": [
+    {"source": "$HOME/.config/storage/sata-fstab.conf", "destination": "home/.config/storage/sata-fstab.conf", "kind": "file", "format": "text", "mode": "0644", "elevated_read": false, "restore": "user-review", "reason": "Explicitly approved SATA-only UUID recovery fragment; manually merge into fstab after identity review. Excludes NVMe/EFI identifiers, personal backup contents and private evidence."},
     {"source": "$HOME/.config/hypr/hyprland.lua", "destination": "home/.config/hypr/hyprland.lua", "kind": "file", "format": "text", "mode": "0644", "elevated_read": false, "restore": "user-review"},
     {"source": "$HOME/.config/hypr/hypridle.conf", "destination": "home/.config/hypr/hypridle.conf", "kind": "file", "format": "text", "mode": "0644", "elevated_read": false, "restore": "user-review"},
     {"source": "$HOME/.config/hypr/hyprlock.conf", "destination": "home/.config/hypr/hyprlock.conf", "kind": "file", "format": "text", "mode": "0644", "elevated_read": false, "restore": "user-review"},

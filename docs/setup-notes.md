@@ -51,7 +51,7 @@ Mono 11. Do not change these to make an inventory look consistent.
 `propose-inventories` emits only these seven keys, not the dconf database.
 
 At inspection: 79 explicit native packages, three foreign packages
-(`bibata-cursor-theme-bin`, `flat-remix`, `paru`); 14 enabled system unit names and
+(`bibata-cursor-theme-bin`, `flat-remix`, `paru`); originally 14 enabled system unit names and
 six enabled user unit names. Unit names such as keyring socket activation are
 not credentials or keyring database exports. Generic getty templates/aliases and
 socket activation must be interpreted before any future enablement automation.
@@ -69,6 +69,21 @@ include PAM, host keys, runtime state, system defaults or a raw root-only Snappe
 config. Phase A adds sanitized Snapper retention, mount/boot and firewall/WoL
 observations in separate reviewed docs—not new raw-file sync mappings. Firewall,
 SSH, boot and greeter recovery still depend on more than the copied files.
+
+## SATA storage requirements — 2026-11-17
+
+The additional exact mapping is `.config/storage/sata-fstab.conf`, a user-reviewed
+SATA-only recovery fragment. It does not replace or automatically configure
+fstab. See [storage recovery](storage.md) for the approved UUIDs, automatic startup
+mounts, protection/access roles and integrity results. Full fstab and private
+inventories are not imported. The manifest now contains 33 mappings.
+
+Recovery needs the existing `util-linux`, `e2fsprogs`, `acl`, `systemd`,
+`udisks2`, `gvfs`, Thunar and Polkit integration. These include transitive
+dependencies; the explicit native package inventory was not falsified to mark
+them all explicitly installed. No packages were installed by the SATA work.
+`fstrim.timer` is now separately reviewed/enabled, making 15 system inventory
+names; six user inventory names remain unchanged.
 
 ## Wallpapers
 

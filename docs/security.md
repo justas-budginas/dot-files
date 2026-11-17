@@ -36,16 +36,17 @@ the manifest/snapshots or while performing another Git operation.
 - NetworkManager connection profiles, WireGuard keys/configuration.
 - `/etc/shadow`, machine-id, SSH host keys, PAM configuration.
 - OpenCode settings/tokens/data, personal repositories, datasets, LLM files.
-- Raw firewall rules, fstab/GRUB machine identifiers, disk/snapshot content.
+- Raw firewall rules, full fstab/GRUB machine identifiers, disk/snapshot content.
+  The explicitly approved SATA-only UUID exception is described below.
 - Existing phase backups, test screenshots, runtime sockets, package defaults.
 
 Inventories contain reviewed package/service names and selected appearance
 values only. LLM/compute-related package names or new unreviewed service names
 stop inventory proposals for separate curation; no LLM project is traversed.
 
-Phase A adds only three explicitly allowed documentation paths and a dedicated
-read-only policy inspector with fixture tests. `manifest/configs.json` still has
-32 entries; no raw firewall, Snapper, GRUB, fstab or network profile was added.
+Phase A added three explicitly allowed documentation paths and a dedicated
+read-only policy inspector with fixture tests. It retained 32 mappings; no raw
+firewall, Snapper, GRUB, fstab or network profile was added.
 The inspector is not called by sync and has no write/apply mode. Its optional
 privileged invocation requires exact approval and the system authorization dialog.
 It exports only selected root-policy keys and sanitized summaries, never raw
@@ -55,6 +56,23 @@ Live wallpaper pins remain strict. Explicit, individually reviewed prior pins
 can apply to repo/index/rollback copies only; default history is empty and no
 tool edits either approval list. Mapping/image changes follow the paired-diff
 procedure in `config-change-review.md`.
+
+## Narrow storage recovery exception, 2026-11-17
+
+The user explicitly approved publishing the Crucial and Apacer filesystem UUIDs,
+mountpoints and storage configuration. The 33rd exact mapping is
+`$HOME/.config/storage/sata-fstab.conf`, a reviewed SATA-only recovery fragment.
+It is not the full live fstab and is not consumed by mount/systemd automatically.
+Its paired code/manifest allowlist remains one regular file, not a directory.
+The source is checked by the same size/mode/symlink/credential guards and the
+repository copy is created only by the normal sync transaction.
+`docs/storage.md` is the one new documentation allowlist entry; `fstrim.timer`
+is the one new service-inventory approval.
+
+No NVMe/EFI identifiers, disk serials, personal relative paths, checksum
+inventories, backups, access-test output or migration logs are published.
+Private recovery evidence stays outside the checkout. Do not widen this
+exception to raw fstab, arbitrary storage files or device discovery exports.
 
 ## Git/GitHub
 

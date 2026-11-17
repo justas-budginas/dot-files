@@ -31,6 +31,7 @@ APPROVED_HOME = {
     ".config/starship.toml", ".zshrc", ".local/bin/powermenu",
     ".local/share/wallpapers/crimson/crimson-left.png",
     ".local/share/wallpapers/crimson/crimson-right.png",
+    ".config/storage/sata-fstab.conf",
 }
 APPROVED_SYSTEM = {
     "/etc/greetd/config.toml", "/etc/nwg-hello/hyprland.lua",
@@ -66,6 +67,7 @@ INFRA = {
     "docs/screenshots.md",
     "docs/system-recovery-inventory.md", "docs/service-recovery-map.md",
     "docs/config-change-review.md", "tests/test_recovery.py",
+    "docs/storage.md",
 } | {"scripts/" + n for n in TOOLS}
 LLM = re.compile(r"llm|ollama|llama|vllm|open.?webui|litellm|kobold|cuda|rocm|pytorch|tensorflow", re.I)
 SAFE_SERVICES = {
@@ -76,6 +78,7 @@ SAFE_SERVICES = {
     "remote-fs.target", "snapper-cleanup.timer", "snapper-timeline.timer",
     "wireplumber.service", "xdg-user-dirs.service", "gnome-keyring-daemon.socket",
     "p11-kit-server.socket", "pipewire-pulse.socket", "pipewire.socket",
+    "fstrim.timer",
 }
 
 

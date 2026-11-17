@@ -36,6 +36,7 @@ See [screenshot provenance and privacy](docs/screenshots.md).*
 | Typography | Inter + JetBrains Mono | Desktop UI + terminal; Font Awesome / Nerd Font symbols in Waybar |
 | Audio & network | PipeWire/WirePlumber + NetworkManager | Enablement inventory only; no private connection profiles |
 | System preferences | zram, SSH daemon policy, Snapper timer, pacman, initramfs, UFW preferences | [Selected system files](system/etc/); manual-only restore |
+| SATA storage | Crucial + Games ext4, UUID startup mounts, protected readable backup, weekly TRIM | [Storage recovery](docs/storage.md); reboot persistence test pending |
 
 ### Everyday shortcuts
 
@@ -57,11 +58,12 @@ Copy-based snapshot of the working Arch + Hyprland **Crimson Desktop**.
 Live configuration stays in its original location: no symlinks, auto-commits,
 push automation, service restarts or restore actions.
 
-**Current status (2026-11-15):** the existing configuration snapshot is committed
-and present on GitHub. After the user's pull, local `develop`, `origin/develop`
-and the checked GitHub branch matched `5ff9f41`. Remote visibility is not verified.
-**Phase A improvements are local, uncommitted changes** pending review; this
-phase does not stage, commit or push. `develop` remains the source of truth.
+**Current status (2026-11-17):** Phase A was committed before the SATA work.
+The SATA migration, restored-file SHA-256 verification, startup mount checks,
+protected Apacer backup access, NVMe temporary-copy cleanup and weekly TRIM
+configuration are complete. Actual reboot-persistence testing remains pending.
+This storage-only update is explicitly authorized for commit/push on `develop`;
+remote visibility is not verified. `develop` remains the source of truth.
 
 Phase A adds a [sanitized system recovery inventory](docs/system-recovery-inventory.md),
 [service prerequisites](docs/service-recovery-map.md), and a
@@ -72,7 +74,7 @@ Bootstrap implementation (Phase B) and disposable-system recovery rehearsal
 ## Layout
 
 ```text
-manifest/configs.json       32 explicit live-source → repository mappings
+manifest/configs.json       33 explicit live-source → repository mappings
 manifest/packages-*.txt     explicit native and foreign package inventories
 manifest/services.json     curated enabled system/user unit names
 manifest/appearance.json   selected GSettings appearance values
@@ -194,6 +196,9 @@ See [security](docs/security.md), [setup/dependencies](docs/setup-notes.md),
 
 The recovery inventory describes actual observed UFW/Snapper/Btrfs/GRUB/WoL
 settings without copying private network profiles, disk identifiers or snapshot
-data. Observation is not proof that a fresh-machine restore has been rehearsed.
+data from that earlier observation. The separately approved storage update
+publishes only the two SATA filesystem UUIDs in a narrow recovery fragment;
+full fstab, hardware serials, personal inventories and checksum logs stay out of
+Git. Observation is not proof that a fresh-machine restore has been rehearsed.
 
 This is **not** a full backup of home, application state, disks, EFI or the OS.

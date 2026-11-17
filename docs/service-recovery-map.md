@@ -3,7 +3,9 @@
 Observed 2026-11-15 from the existing reviewed `manifest/services.json`, selected
 unit definitions/state queries and named recovery-package queries. Package
 prerequisites below are reconstruction guidance, not exhaustive ownership proof. The inventory
-remains unchanged: **14 system + 6 user names**. Enabled is not synonymous with
+originally contained **14 system + 6 user names**. The approved 2026-11-17 storage
+update adds only `fstrim.timer`: **15 system + 6 user names** now.
+Enabled is not synonymous with
 running; inactive event/oneshot units can be normal.
 
 ## System units
@@ -24,6 +26,7 @@ running; inactive event/oneshot units can be normal.
 | getty@.service | Template; systemd | Select actual console instance/VT policy; never bulk-enable the bare template |
 | snapper-timeline.timer | Timer; snapper + configured root policy | Candidate after validating root policy and daily override |
 | snapper-cleanup.timer | Timer; snapper + configured root policy | Candidate after retention/storage validation; snapshots are not independent backups |
+| fstrim.timer | Stock weekly SSD maintenance; util-linux/systemd, mounted discard-capable filesystems | Enabled for reviewed SATA storage; preserve NVMe Btrfs async discard, note weekly overlap |
 
 Selected runtime queries showed the named daemons/timers active, while dispatcher
 and wait-online were inactive. Bare getty template state was not a runnable
@@ -51,4 +54,5 @@ Review candidates one at a time after packages and configurations are validated.
 Distinguish `enable` (future activation links) from `start` (immediate action).
 Never turn the JSON list into `systemctl enable --now ...`, never copy aliases or
 template symlinks wholesale, and do not change services on this working host.
-Phase B/C are still separate approval gates.
+Phase B/C are still separate approval gates. The separately approved storage
+work enabled only the reviewed `fstrim.timer`; see [storage.md](storage.md).

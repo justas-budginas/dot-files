@@ -27,7 +27,14 @@ Implement and test independently, first in a disposable Arch VM:
    enable from start, skip absent units and request approval for both.
 7. **Verification:** compositor parsing/errors, bar helpers, lock/unlock,
    output-specific forms, wallpaper/startup, portal/audio/notifications, SSH and
-   firewall access. Report observed versus user-confirmed results.
+    firewall access. Report observed versus user-confirmed results.
+
+The completed SATA storage work adds manual recovery prerequisites, not a
+bootstrap implementation: follow [storage.md](storage.md) to re-identify drives,
+review the SATA-only fstab fragment, preserve existing root/EFI/Btrfs/swap
+configuration, validate mounts/access/ACL protection, and deliberately enable
+the packaged weekly `fstrim.timer`. Never infer permission to format or delete
+personal data from a matching label, UUID or service-inventory entry.
 
 Must be idempotent: dry-run first, compare state, avoid rewriting matching files,
 back up every replacement, stop on ambiguous edits and verify before disruption.

@@ -65,6 +65,55 @@ class Workflow(unittest.TestCase):
         self.assertEqual(before, self.tree())
         self.assertFalse((self.repo / ".git/dotfiles-sync").exists())
 
+    def storage_entry(self):
+        return {"source": "$HOME/.config/storage/sata-fstab.conf",
+                "destination": "home/.config/storage/sata-fstab.conf",
+                "mode": "0644", "kind": "file", "format": "text",
+                "elevated_read": False, "restore": "user-review",
+                "reason": "Reviewed SATA-only recovery fragment; no personal inventory."}
+
+    def test_storage_scope_remains_one_exact_regular_file(self):
+        entry = self.storage_entry()
+        d.validate_entry(entry, set())
+        for changes in [
+            {"source": "$HOME/.config/storage/other.conf"},
+            {"source": "/etc/fstab", "destination": "system/etc/fstab"},
+            {"destination": "home/.config/storage/../fstab"},
+            {"restore": "manual-only"}, {"mode": "0600"},
+        ]:
+            with self.assertRaises(d.Refused):
+                d.validate_entry(dict(entry, **changes), set())
+        self.assertIn("fstrim.timer", d.SAFE_SERVICES)
+        self.assertNotIn("unreviewed-storage.service", d.SAFE_SERVICES)
+
+    def test_storage_fragment_normal_sync_and_credential_guard(self):
+        source = self.home / ".config/storage/sata-fstab.conf"
+        source.parent.mkdir(parents=True)
+        source.write_text("# synthetic SATA-only recovery fixture\n")
+        source.chmod(0o644)
+        self.entries.append(self.storage_entry())
+        self.write_manifest()
+        before = self.tree()
+        self.snapshot().plan()
+        self.assertEqual(before, self.tree())
+        self.snapshot().apply()
+        self.assertEqual(source.read_bytes(),
+                         (self.repo / self.entries[-1]["destination"]).read_bytes())
+        source.write_text("api_" + "key = " + "A" * 32 + "\n")
+        with self.assertRaisesRegex(d.Refused, "credential"):
+            self.snapshot().plan()
+
+    def test_storage_fragment_symlink_parent_is_refused(self):
+        outside = self.base / "unapproved-storage"
+        outside.mkdir()
+        (outside / "sata-fstab.conf").write_text("# fixture\n")
+        (self.home / ".config").mkdir()
+        (self.home / ".config/storage").symlink_to(outside, target_is_directory=True)
+        self.entries.append(self.storage_entry())
+        self.write_manifest()
+        with self.assertRaisesRegex(d.Refused, "Symlink"):
+            self.snapshot().plan()
+
     def test_copy_mode_idempotency_and_live_sources_untouched(self):
         original = {e["source"]: (self.home / e["source"][6:]).read_bytes() for e in self.entries}
         self.snapshot().apply()

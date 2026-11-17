@@ -1,6 +1,36 @@
 # Verification history
 
-## 2026-11-15 — Phase A, current local improvements
+## 2026-11-17 — SATA configuration and cleanup
+
+- Both UUID-based ext4 startup mounts passed fstab and generated systemd-unit
+  validation, effective source/type/rw checks and user access tests.
+- Apacer's same-filesystem backup rename preserved the payload-root inode,
+  ordinary paths/types/sizes and all modification timestamps. Named read-only
+  access ACLs retained root ownership; writable ordinary storage is separate.
+- Existing full SHA-256 evidence and fresh structural/access/health checks gated
+  deletion of only the exact temporary NVMe backup. Control evidence was
+  preserved privately outside the deletion target; snapshots were not changed.
+- Stock weekly `fstrim.timer` is enabled/active and has a scheduled execution.
+  Its non-writing dry run includes both SATA mounts; NVMe async discard is
+  unchanged and overlaps with the packaged timer's NVMe coverage.
+- **37 workflow + 11 sanitizer/privilege-boundary tests = 48 passed.**
+  Three new regressions cover the exact SATA-fragment scope/policy, normal
+  transactional sync with credential rejection, and symlink-parent refusal.
+- Before the update, all 32 existing live-source mappings matched the checkout.
+  The reviewed sync preview added only the SATA-only recovery fragment; one
+  normal allowlist transaction copied that file. All 33 mappings then matched,
+  with zero pending copies; existing configuration snapshots were unchanged.
+- Working-tree/index scoped audit and whitespace checks passed. The exception
+  publishes only approved SATA UUID/configuration and sanitized storage results,
+  not raw fstab, serials, personal file paths, inventory/checksum lists or logs.
+
+Storage details and bootstrap prerequisites: [storage.md](storage.md).
+Actual reboot persistence and the first real scheduled trim remain untested.
+The storage update is separately authorized for review, commit and SSH push to
+`origin/develop`; no force push, authentication change or bootstrap rewrite.
+The older records below retain their historical pre-publication status wording.
+
+## 2026-11-15 — Phase A, historical local-improvement record
 
 Baseline: local `develop` initially `8f32d82`; cached origin matched but an
 authenticated strict-host-key `git ls-remote` showed GitHub at `5ff9f41`.
