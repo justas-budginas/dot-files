@@ -24,6 +24,7 @@ APPROVED_HOME = {
 } | {
     ".config/waybar/config.jsonc", ".config/waybar/style.css",
     ".config/waybar/scripts/gpu.py", ".config/rofi/config.rasi",
+    ".config/waybar/scripts/wireless_battery.py",
     ".config/rofi/crimson.rasi", ".config/rofi/launcher.rasi",
     ".config/rofi/powermenu.rasi", ".config/kitty/kitty.conf",
     ".config/kitty/colors.conf", ".config/mako/config",
@@ -68,6 +69,7 @@ INFRA = {
     "docs/system-recovery-inventory.md", "docs/service-recovery-map.md",
     "docs/config-change-review.md", "tests/test_recovery.py",
     "docs/storage.md",
+    "docs/wireless-batteries.md", "tests/test_wireless_battery.py",
 } | {"scripts/" + n for n in TOOLS}
 LLM = re.compile(r"llm|ollama|llama|vllm|open.?webui|litellm|kobold|cuda|rocm|pytorch|tensorflow", re.I)
 SAFE_SERVICES = {

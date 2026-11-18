@@ -30,6 +30,8 @@ window#waybar {
 #temperature,
 #network,
 #pulseaudio,
+#custom-mouse-battery,
+#custom-headset-battery,
 #tray,
 #clock,
 #custom-power {
@@ -116,6 +118,32 @@ window#waybar.empty #window {
     color: #d8c0c8;
 }
 
+#custom-mouse-battery,
+#custom-headset-battery {
+    padding: 0 10px;
+    border-bottom: 2px solid #643440;
+}
+
+#custom-mouse-battery.unavailable,
+#custom-headset-battery.unavailable {
+    color: @secondary;
+}
+
+#custom-mouse-battery.low,
+#custom-headset-battery.low {
+    color: #ffa4af;
+    background: #34212a;
+}
+
+#custom-mouse-battery.critical,
+#custom-headset-battery.critical {
+    color: @text;
+    background: #812c3b;
+    border-color: @crimson;
+}
+
+#custom-mouse-battery:hover,
+#custom-headset-battery:hover,
 #pulseaudio:hover,
 #clock:hover {
     background: #30212a;

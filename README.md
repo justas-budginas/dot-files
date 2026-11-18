@@ -22,6 +22,7 @@ See [screenshot provenance and privacy](docs/screenshots.md).*
 | Compositor | Hyprland, Dwindle | [Lua config](home/.config/hypr/hyprland.lua); crimson gradient borders |
 | Displays | Lenovo DP-1 + Dell HDMI-A-2 | 2560×1440 each, approximately 180 Hz + 75 Hz |
 | Status bar | Waybar | [Layout + CSS](home/.config/waybar/); output-local workspaces and titles |
+| Wireless batteries | Mouse via UPower/HID++, headset via HeadsetControl | [60-second indicators and fallback behavior](docs/wireless-batteries.md) |
 | GPU telemetry | Custom Python helper | [gpu.py](home/.config/waybar/scripts/gpu.py); pinned discrete AMD GPU, 5-second sampling |
 | Launcher & power menu | Rofi | [Shared Crimson themes](home/.config/rofi/) + [power helper](home/.local/bin/powermenu) |
 | Terminal | Kitty | [Opaque graphite palette](home/.config/kitty/), JetBrains Mono 11 |
@@ -74,7 +75,7 @@ Bootstrap implementation (Phase B) and disposable-system recovery rehearsal
 ## Layout
 
 ```text
-manifest/configs.json       33 explicit live-source → repository mappings
+manifest/configs.json       34 explicit live-source → repository mappings
 manifest/packages-*.txt     explicit native and foreign package inventories
 manifest/services.json     curated enabled system/user unit names
 manifest/appearance.json   selected GSettings appearance values

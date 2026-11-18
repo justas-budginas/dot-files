@@ -13,6 +13,7 @@
     "modules-center": ["hyprland/window"],
     "modules-right": [
         "network", "cpu", "custom/gpu", "memory", "temperature", "pulseaudio",
+        "custom/mouse-battery", "custom/headset-battery",
         "tray", "clock", "custom/power"
     ],
 
@@ -87,6 +88,22 @@
         "max-volume": 100,
         "tooltip-format": "{desc}\nVolume: {volume}% · Scroll to adjust\nClick: audio settings",
         "on-click": "pavucontrol"
+    },
+    "custom/mouse-battery": {
+        "exec": "python3 $HOME/.config/waybar/scripts/wireless_battery.py mouse",
+        "return-type": "json",
+        "interval": 60,
+        "format": "󰍽 <b>{}</b>",
+        "escape": true,
+        "tooltip": true
+    },
+    "custom/headset-battery": {
+        "exec": "python3 $HOME/.config/waybar/scripts/wireless_battery.py headset",
+        "return-type": "json",
+        "interval": 60,
+        "format": "󰋎 <b>{}</b>",
+        "escape": true,
+        "tooltip": true
     },
     "tray": {
         "icon-size": 18,

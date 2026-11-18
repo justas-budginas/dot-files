@@ -1,5 +1,38 @@
 # Verification history
 
+## 2026-11-18 — Crimson wireless battery indicators
+
+- Positively identified the mouse using UPower mouse kind/model plus its sysfs
+  HID++ product identity, not a guessed battery index or headset-like model name.
+  Observed **64%, later 63%**, matching kernel capacity.
+- HeadsetControl 4.2.0 battery-only JSON selected the intended receiver and
+  reported **89%**. Intermittent protocol/unavailable results were also observed;
+  these intentionally render `--`, not a stale percentage.
+- Concurrent monitor queries exposed intermittent headset protocol failures.
+  A small per-user runtime lock serializes those USB reads without a daemon or
+  percentage cache. Three subsequent paired queries all returned 89%.
+- Original live Waybar config/CSS were backed up privately before editing.
+  JSONC and GTK3 CSS validation passed; a temporary hidden Waybar accepted both
+  outputs and the new widgets without logged warnings/errors.
+- Reloaded the existing Waybar process with its packaged SIGUSR2 workflow.
+  Both compositor layers remained visible at their original geometry. Private
+  bar-only captures verified the indicators and existing module visibility.
+- Existing module configuration, output-local workspaces/titles, CPU/GPU helper,
+  audio actions, tray and power-menu action were preserved. Audio volume remained
+  readable; no disruptive clicking, scrolling, playback or power action was
+  performed. Physical device power-off/receiver-unplug tests remain unperformed;
+  offline/malformed/error states are covered by safe fixtures.
+- **13 battery + 37 workflow + 11 recovery/security tests = 61 passed.**
+  Scoped working-tree/index audit, whitespace checks and manifest verification
+  passed. Normal sync transactions updated only Waybar config/CSS and added
+  the helper; all 34 allowlisted live sources then matched the checkout.
+- No packages, drivers, device settings, desktop-session services, SATA
+  configuration or snapshots changed. No raw device listings, serials, screenshots
+  or private verification logs are published.
+
+See [wireless-batteries.md](wireless-batteries.md) for source guards, the
+60-second polling limit, fallback behavior, dependencies and recovery.
+
 ## 2026-11-17 — SATA configuration and cleanup
 
 - Both UUID-based ext4 startup mounts passed fstab and generated systemd-unit
