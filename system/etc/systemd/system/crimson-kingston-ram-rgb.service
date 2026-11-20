@@ -1,0 +1,16 @@
+[Unit]
+Description=Set Kingston FURY DDR5 RAM lighting to static red
+
+[Service]
+Type=oneshot
+TimeoutStartSec=30s
+RuntimeDirectory=crimson-kingston-ram-rgb
+RuntimeDirectoryMode=0700
+Environment=QT_QPA_PLATFORM=offscreen
+UnsetEnvironment=DISPLAY WAYLAND_DISPLAY
+ExecStartPre=/usr/bin/modprobe i2c-dev
+ExecStartPre=/usr/bin/modprobe i2c-piix4
+ExecStart=/usr/bin/openrgb --config /run/crimson-kingston-ram-rgb --noautoconnect --device "Kingston Fury DDR5 DRAM" --mode static --color FF0000
+
+[Install]
+WantedBy=multi-user.target

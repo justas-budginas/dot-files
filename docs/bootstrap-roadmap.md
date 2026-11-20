@@ -26,7 +26,9 @@ Implement and test independently, first in a disposable Arch VM:
    separately approved privileged transactions; never mass-copy `/etc`.
    Preserve PAM/keyring/account semantics and recoverable greeter access.
 6. **Services:** interpret reviewed unit names/templates/aliases; distinguish
-   enable from start, skip absent units and request approval for both.
+    enable from start, skip absent units and request approval for both.
+    The [Kingston RAM RGB oneshot](kingston-ram-rgb.md) is hardware-specific:
+    verify the exact controller before installing, testing and enabling it.
 7. **Verification:** compositor parsing/errors, bar helpers, lock/unlock,
    output-specific forms, wallpaper/startup, portal/audio/notifications, SSH and
     firewall access. Report observed versus user-confirmed results.

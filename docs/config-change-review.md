@@ -104,6 +104,11 @@ git diff
 ```
 
 New/untracked files need explicit inspection; normal `git diff` omits them.
+To leave unrelated live drift untouched, pass `--only DESTINATION` to sync or
+verify, using the exact repository-relative destination in the manifest. Use
+the same destination for preview and apply. The full working-tree/index audit
+still runs; only live-source selection is narrowed, and rollback metadata for
+unselected mappings is preserved. Unscoped verification still checks all mappings.
 After separate staging approval use exact paths or `git add -p`, then inspect
 `git diff --cached` and rerun the audit. Commit/push require their own approval;
 check the advertised `develop` remote HEAD afterward. No command above applies

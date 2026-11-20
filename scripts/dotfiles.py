@@ -41,6 +41,7 @@ APPROVED_SYSTEM = {
     "/etc/systemd/system/snapper-timeline.timer.d/override.conf",
     "/etc/ssh/sshd_config.d/10-gaming-pc.conf", "/etc/pacman.conf",
     "/etc/mkinitcpio.conf", "/etc/ufw/ufw.conf",
+    "/etc/systemd/system/crimson-kingston-ram-rgb.service",
     "/usr/local/share/backgrounds/crimson-greeter/crimson-shared.png",
 }
 # Approved deployed PNGs only. A changed asset requires a new review/hash approval.
@@ -70,6 +71,7 @@ INFRA = {
     "docs/config-change-review.md", "tests/test_recovery.py",
     "docs/storage.md",
     "docs/wireless-batteries.md", "tests/test_wireless_battery.py",
+    "docs/kingston-ram-rgb.md",
 } | {"scripts/" + n for n in TOOLS}
 LLM = re.compile(r"llm|ollama|llama|vllm|open.?webui|litellm|kobold|cuda|rocm|pytorch|tensorflow", re.I)
 SAFE_SERVICES = {
@@ -80,7 +82,7 @@ SAFE_SERVICES = {
     "remote-fs.target", "snapper-cleanup.timer", "snapper-timeline.timer",
     "wireplumber.service", "xdg-user-dirs.service", "gnome-keyring-daemon.socket",
     "p11-kit-server.socket", "pipewire-pulse.socket", "pipewire.socket",
-    "fstrim.timer",
+    "fstrim.timer", "crimson-kingston-ram-rgb.service",
 }
 
 
@@ -398,11 +400,14 @@ class Snapshot:
             check(name, git(self.root, "cat-file", "blob", oid, binary=True),
                   int(mode_string, 8) & 0o777)
 
-    def plan(self):
+    def plan(self, only=None):
         self.audit()
+        entries = self.entries if only is None else [
+            e for e in self.entries if e["destination"] == only]
+        require(entries, "--only must name an exact snapshot destination in the manifest")
         staged = set(git(self.root, "diff", "--cached", "--name-only", "-z").split("\0"))
         plan = []
-        for e in self.entries:
+        for e in entries:
             try:
                 data, mode = self.content(e, self.source(e))
             except FileNotFoundError:
@@ -443,12 +448,13 @@ class Snapshot:
         finally:
             os.close(fd)
 
-    def apply(self):
+    def apply(self, only=None):
         with self.lock():
             self.state = self.load_state()
-            plan = self.plan()
+            plan = self.plan(only)
             updates = [p for p in plan if p["action"] != "UNCHANGED"]
-            new_files = {p["entry"]["destination"]: p["after"] for p in plan}
+            new_files = self.state["files"].copy() if only is not None else {}
+            new_files.update({p["entry"]["destination"]: p["after"] for p in plan})
             if not updates and new_files == self.state["files"]:
                 print("No changes (idempotent); no transaction/state rewrite.")
                 return
@@ -620,12 +626,15 @@ def main(command):
     modes.add_argument("--dry-run", action="store_true", help="read-only (default)")
     modes.add_argument("--apply", action="store_true", help="explicit repository-only writes")
     parser.add_argument("--diff", action="store_true", help="show scanned text diffs with sync/verify")
+    parser.add_argument("--only", metavar="DESTINATION",
+                        help="sync/verify one exact manifest destination")
     parser.add_argument("--transaction", help="rollback transaction directory basename")
     args = parser.parse_args()
     try:
         require(os.geteuid() != 0, "Do not run these tools with sudo/root")
         require(not args.apply or command in ("sync", "rollback"), "This command is read-only")
         require(not args.diff or command in ("sync", "verify"), "--diff is for sync/verify")
+        require(args.only is None or command in ("sync", "verify"), "--only is for sync/verify")
         require(not args.transaction or command == "rollback", "--transaction is for rollback")
         root = Path(__file__).absolute().parent.parent
         if command == "inventories":
@@ -640,9 +649,9 @@ def main(command):
             snapshot.audit()
             print("PASS: working tree (including ignored files) and index passed scoped audit.")
         elif args.apply:
-            snapshot.apply()
+            snapshot.apply(args.only)
         else:
-            show_plan(snapshot.plan(), args.diff, snapshot.root)
+            show_plan(snapshot.plan(args.only), args.diff, snapshot.root)
             print("DRY RUN: no files copied, no state/backups created, no Git index changes.")
     except (OSError, ValueError, KeyError, Refused, subprocess.SubprocessError) as error:
         print(f"REFUSED: {error}", file=sys.stderr)

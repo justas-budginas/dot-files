@@ -38,6 +38,7 @@ nano
 network-manager-applet
 networkmanager
 nwg-hello
+openrgb
 otf-font-awesome
 pavucontrol
 pipewire-alsa

@@ -65,6 +65,53 @@ class Workflow(unittest.TestCase):
         self.assertEqual(before, self.tree())
         self.assertFalse((self.repo / ".git/dotfiles-sync").exists())
 
+    def test_exact_selection_preserves_other_copies_state_and_rollback(self):
+        first, second = [e["destination"] for e in self.entries]
+        self.snapshot().apply()
+        before = self.snapshot().load_state()
+        (self.home / ".zshrc").write_text("reviewed update\n")
+        (self.home / ".local/bin/powermenu").write_text("unrelated drift\n")
+        tree = self.tree()
+        plan = self.snapshot().plan(only=first)
+        self.assertEqual([(p["entry"]["destination"], p["action"]) for p in plan],
+                         [(first, "UPDATE")])
+        self.assertEqual(self.tree(), tree)
+        self.snapshot().apply(only=first)
+        snapshot = self.snapshot()
+        self.assertEqual(snapshot.state["files"][second], before["files"][second])
+        self.assertEqual((self.repo / second).read_text(), "initial configuration\n")
+        self.assertEqual((self.repo / first).read_text(), "reviewed update\n")
+        snapshot.restore(snapshot.internal / snapshot.state["last_transaction"], apply=True)
+        self.assertEqual(self.snapshot().load_state(), before)
+        self.assertEqual((self.repo / first).read_text(), "initial configuration\n")
+
+    def test_exact_selection_rejects_patterns_and_keeps_audit(self):
+        for name in ("home/*", "home", "", "home/../README.md", "README.md"):
+            with self.subTest(name=name), self.assertRaisesRegex(d.Refused, "exact"):
+                self.snapshot().plan(only=name)
+        selected = self.entries[0]["destination"]
+        (self.home / ".zshrc").write_text("api_" + "key = " + "A" * 32 + "\n")
+        with self.assertRaisesRegex(d.Refused, "credential"):
+            self.snapshot().plan(only=selected)
+        (self.repo / "unrelated-private.txt").write_text("fixture\n")
+        with self.assertRaisesRegex(d.Refused, "Unallowlisted"):
+            self.snapshot().plan(only=selected)
+
+    def test_kingston_unit_only_allows_exact_manual_system_mapping(self):
+        source = "/etc/systemd/system/crimson-kingston-ram-rgb.service"
+        entry = {"source": source, "destination": "system" + source,
+                 "mode": "0644", "kind": "file", "format": "text",
+                 "elevated_read": False, "restore": "manual-only"}
+        d.validate_entry(entry, set())
+        for changes in (
+            {"source": "/etc/systemd/system/openrgb.service",
+             "destination": "system/etc/systemd/system/openrgb.service"},
+            {"destination": "system/etc/systemd/system/../crimson-kingston-ram-rgb.service"},
+            {"restore": "user-review"}, {"mode": "0600"}, {"elevated_read": True},
+        ):
+            with self.subTest(changes=changes), self.assertRaises(d.Refused):
+                d.validate_entry(dict(entry, **changes), set())
+
     def storage_entry(self):
         return {"source": "$HOME/.config/storage/sata-fstab.conf",
                 "destination": "home/.config/storage/sata-fstab.conf",

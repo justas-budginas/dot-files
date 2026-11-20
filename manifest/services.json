@@ -1,5 +1,6 @@
 {
   "system": [
+    "crimson-kingston-ram-rgb.service",
     "NetworkManager-dispatcher.service",
     "NetworkManager-wait-online.service",
     "NetworkManager.service",

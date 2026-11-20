@@ -39,6 +39,7 @@ See [screenshot provenance and privacy](docs/screenshots.md).*
 | Audio & network | PipeWire/WirePlumber + NetworkManager | Enablement inventory only; no private connection profiles |
 | System preferences | zram, SSH daemon policy, Snapper timer, pacman, initramfs, UFW preferences | [Selected system files](system/etc/); manual-only restore |
 | SATA storage | Crucial + Games ext4, UUID startup mounts, protected readable backup, weekly TRIM | [Storage recovery](docs/storage.md); reboot persistence test pending |
+| RAM lighting | Static red Kingston FURY DDR5 | [OpenRGB boot oneshot](docs/kingston-ram-rgb.md); no daemon |
 
 ### Everyday shortcuts
 
@@ -76,7 +77,7 @@ Bootstrap implementation (Phase B) and disposable-system recovery rehearsal
 ## Layout
 
 ```text
-manifest/configs.json       34 explicit live-source → repository mappings
+manifest/configs.json       35 explicit live-source → repository mappings
 manifest/packages-*.txt     explicit native and foreign package inventories
 manifest/services.json     curated enabled system/user unit names
 manifest/appearance.json   selected GSettings appearance values
