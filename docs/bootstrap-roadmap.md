@@ -15,7 +15,9 @@ Implement and test independently, first in a disposable Arch VM:
 1. **Preflight:** correct host/user, Arch base, network, mount layout, free space,
    recovery access and independent backups. Resolve account UID/GID dynamically.
 2. **Packages:** separately reviewed native/foreign lists; install missing items
-   only. Review AUR build scripts, do not blindly upgrade or install LLM tools.
+    only. Review AUR build scripts, do not blindly upgrade or install LLM tools.
+    Set up the [Serein package source](#serein-package-source) before processing
+    the native package list.
 3. **User config:** preview mapping from `home/` to chosen home, back up existing
    files, preserve approved modes; explicitly review hardcoded account paths.
 4. **Appearance/assets:** install theme/font packages, approved images and
@@ -47,3 +49,14 @@ Snapper policy and firewall/network reconstruction require separate safeguards.
 This repository is not an independent full-system backup. Not backed up: personal
 data, app state, secrets, EFI, bootloader installation, SATA disks, system snapshots,
 root-only Snapper policy, network connection state or the Local LLM project.
+
+## Serein package source
+
+Serein is part of the desktop package list. It is installed through pacman from
+the upstream `serein` nightly repository, not from the official Arch repositories
+or the AUR. On a fresh install, follow the
+[upstream Arch instructions](https://github.com/viceverse-cz/Serein) to review the
+repository and verify and trust its signing key. Configure the repository with
+signature verification required before installing `serein` from the native list.
+If the repository or its signatures cannot be verified, stop and report the
+missing prerequisite rather than weakening pacman's signature policy.

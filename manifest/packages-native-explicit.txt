@@ -5,7 +5,6 @@ base-devel
 btop
 btrfs-progs
 catfish
-discord
 efibootmgr
 ethtool
 file-roller
@@ -49,6 +48,7 @@ rofi
 rust
 satty
 seahorse
+serein
 slurp
 smartmontools
 snap-pac
