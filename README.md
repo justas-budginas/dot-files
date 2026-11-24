@@ -38,7 +38,7 @@ See [screenshot provenance and privacy](docs/screenshots.md).*
 | Typography | Inter + JetBrains Mono | Desktop UI + terminal; Font Awesome / Nerd Font symbols in Waybar |
 | Audio & network | PipeWire/WirePlumber + NetworkManager | Enablement inventory only; no private connection profiles |
 | System preferences | zram, SSH daemon policy, Snapper timer, pacman, initramfs, UFW preferences | [Selected system files](system/etc/); manual-only restore |
-| SATA storage | Crucial + Games ext4, UUID startup mounts, protected readable backup, weekly TRIM | [Storage recovery](docs/storage.md); reboot persistence test pending |
+| SATA storage | Crucial + Apacer ext4, UUID startup mounts, protected readable backup, weekly TRIM | [Storage recovery](docs/storage.md); reboot persistence test pending |
 | RAM lighting | Static red Kingston FURY DDR5 | [OpenRGB boot oneshot](docs/kingston-ram-rgb.md); no daemon |
 
 ### Everyday shortcuts

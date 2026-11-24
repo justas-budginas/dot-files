@@ -9,7 +9,12 @@ to format devices, delete backups or run a broad bootstrap.
 | Drive | Filesystem / label | Filesystem UUID | Mountpoint |
 |---|---|---|---|
 | Crucial MX500 | ext4 / `Crucial` | `00b8c58d-1b0d-4c42-8fff-4d68933e3057` | `/mnt/Crucial` |
-| Apacer AS350 | ext4 / `Games` | `decd9b98-b9d5-4675-ba91-6bbc14136008` | `/mnt/Games` |
+| Apacer AS350 | ext4 / `Apacer` | `decd9b98-b9d5-4675-ba91-6bbc14136008` | `/mnt/Apacer` |
+
+On 2026-11-24 the Apacer label and mountpoint changed from `Games` and
+`/mnt/Games` to `Apacer` and `/mnt/Apacer`. The UUID, mount options and
+on-disk directory names are unchanged. Update any saved absolute paths that
+still begin with `/mnt/Games`; no compatibility symlink is installed.
 
 The reviewed recovery fragment is
 [`home/.config/storage/sata-fstab.conf`](../home/.config/storage/sata-fstab.conf).
@@ -43,9 +48,9 @@ merge only reviewed matching entries without duplicates. Then:
 findmnt --verify --verbose
 systemctl daemon-reload
 mount /mnt/Crucial
-mount /mnt/Games
+mount /mnt/Apacer
 findmnt -M /mnt/Crucial -o SOURCE,TARGET,FSTYPE,OPTIONS,UUID
-findmnt -M /mnt/Games -o SOURCE,TARGET,FSTYPE,OPTIONS,UUID
+findmnt -M /mnt/Apacer -o SOURCE,TARGET,FSTYPE,OPTIONS,UUID
 ```
 
 Validate before activation and restore the saved fstab on a failed configuration
@@ -59,7 +64,7 @@ device or silently substitute a kernel device name.
   <original ordinary hierarchy>
   lost+found/                 root-only ext4 housekeeping
 
-/mnt/Games/                    root-controlled filesystem root
+/mnt/Apacer/                   root-controlled filesystem root
   Backup/                     retained original hierarchy directly here
   Games/                      ordinary writable storage, neo:neo, 0700
   lost+found/                 root-only ext4 housekeeping
@@ -72,7 +77,7 @@ All ordinary paths, types, sizes and modification timestamps matched before/
 after. Only the now-empty wrapper was removed. Nonempty historical acquisition
 control artifacts were deliberately retained rather than deleted.
 Private checksum/inventory paths remain relative to the payload root; private
-location documentation now points to `/mnt/Games/Backup/`.
+location is now `/mnt/Apacer/Backup/`.
 
 - Crucial root/payload ownership: `neo:neo`; original permission modes retained.
   Ordinary directories/files are 0700; root is 0755. `lost+found` stays root:root,
@@ -87,7 +92,7 @@ location documentation now points to `/mnt/Games/Backup/`.
   The ACL changes permission metadata but not file contents or modification
   timestamps. ACLs are persistent ext4 metadata, not a per-mount uid/gid option.
 - `neo` browsed all backup directories, read representative files, and passed
-  create/read/delete tests on Crucial and `/mnt/Games/Games/`. Backup write-access
+  create/read/delete tests on Crucial and `/mnt/Apacer/Games/`. Backup write-access
   checks were denied as intended.
 
 For a future recovery, resolve the account UID/GID on that installation; do not

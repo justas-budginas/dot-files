@@ -36,8 +36,9 @@ sudo systemctl enable crimson-kingston-ram-rgb.service
 Success is `Result=success`, `MainPID=0` and `ActiveState=inactive`; the LEDs
 stay red without a process. Manual activation passed and both sticks were
 visually confirmed solid red. A separate, write-free missing-device test
-showed exit code 255 and a failed unit result in systemd. Visual confirmation
-is still needed after a cold boot.
+showed exit code 255 and a failed unit result in systemd. On 2026-11-24 the
+boot journal confirmed a successful run and the owner reported the lighting
+working after boot.
 
 Disable future runs with `sudo systemctl disable --now crimson-kingston-ram-rgb.service`.
 To remove the setup, then remove only `/etc/systemd/system/crimson-kingston-ram-rgb.service`
